@@ -14,9 +14,9 @@ import (
 	"github.com/xzxiong/mo-toolkit/pkg/setup"
 )
 
-// GOMaxProcsCmd represents the GOMaxProcs command
-var GOMaxProcsCmd = &cobra.Command{
-	Use:   "GOMaxProcs",
+// GOGCPercentCmd represents the GOGCPercent command
+var GOGCPercentCmd = &cobra.Command{
+	Use:   "GOGCPercent",
 	Short: "A brief description of your command",
 	Long: `A longer description that spans multiple lines and likely contains examples
 and usage of using your command. For example:
@@ -25,11 +25,11 @@ Cobra is a CLI library for Go that empowers applications.
 This application is a tool to generate the needed files
 to quickly create a Cobra application.`,
 	Run: func(cmd *cobra.Command, args []string) {
-		goMaxProcs()
+		goGCPercent()
 	},
 }
 
-func goMaxProcs() {
+func goGCPercent() {
 	ctx := context.Background()
 	client, err := setup.GetQueryClient(nil)
 	if err != nil {
@@ -40,47 +40,44 @@ func goMaxProcs() {
 
 	addr := queryService.GetAddress()
 
-	// Get Version
-	if err := CheckQueryServiceVersion(ctx, logger, client, GOMaxProcsVersion); err != nil {
+	if err = CheckQueryServiceVersion(ctx, logger, client, GOGCPercentVersion); err != nil {
 		os.Exit(1)
 	}
 
-	// query GOMAXPROCS
-	req := client.NewRequest(query.CmdMethod_GOMAXPROCS)
-	req.GoMaxProcsRequest.MaxProcs = *goMaxProcsConfig.Value
+	req := client.NewRequest(query.CmdMethod_GOGCPercent)
+	req.GoGCPercentRequest.Percent = *goGCPercentConfig.Percent
 	deadlineCtx, dcCancel := context.WithTimeout(ctx, *queryService.Timeout)
 	resp, err := client.SendMessage(deadlineCtx, addr, req)
 	if err != nil {
-		logger.Error("failed to request QueryService/GOMAXPROCS", zap.Error(err))
+		logger.Error("failed to request QueryService/GoGCPercent", zap.Error(err))
 		dcCancel()
 		os.Exit(1)
 	}
-	logger.Info("GOMAXPROCS query",
+	logger.Info("GOGCPercent cmd",
 		zap.String("addr", addr),
-		zap.Int32("req", req.GoMaxProcsRequest.MaxProcs),
-		zap.Int32("resp", resp.GoMaxProcsResponse.MaxProcs),
+		zap.Int32("req", req.GoGCPercentRequest.Percent),
+		zap.Int32("resp", resp.GoGCPercentResponse.Percent),
 	)
 	client.Release(resp)
 	dcCancel()
 }
 
-type GoMaxProcsCmdConfig struct {
-	Value *int32
+type GOGCPercentConfig struct {
+	Percent *int32
 }
 
-var goMaxProcsConfig GoMaxProcsCmdConfig
+var goGCPercentConfig GOGCPercentConfig
 
 func init() {
-	queryServiceCmd.AddCommand(GOMaxProcsCmd)
+	queryServiceCmd.AddCommand(GOGCPercentCmd)
 
 	// Here you will define your flags and configuration settings.
 
 	// Cobra supports Persistent Flags which will work for this command
 	// and all subcommands, e.g.:
-	// GOMaxProcsCmd.PersistentFlags().String("foo", "", "A help for foo")
+	// GOGCPercentCmd.PersistentFlags().String("foo", "", "A help for foo")
 
 	// Cobra supports local flags which will only run when this command
 	// is called directly, e.g.:
-	// GOMaxProcsCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
-	goMaxProcsConfig.Value = GOMaxProcsCmd.Flags().Int32P("value", "v", 0, "call mo query-service/GOMaxProcs with spec ")
+	goGCPercentConfig.Percent = GOGCPercentCmd.Flags().Int32("percent", 100, "Call GOGCPercent, set the target percent")
 }

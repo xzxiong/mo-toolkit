@@ -5,6 +5,7 @@ package cmd
 
 import (
 	"context"
+	"math"
 	"os"
 
 	"github.com/matrixorigin/matrixone/pkg/pb/query"
@@ -14,9 +15,9 @@ import (
 	"github.com/xzxiong/mo-toolkit/pkg/setup"
 )
 
-// GOMaxProcsCmd represents the GOMaxProcs command
-var GOMaxProcsCmd = &cobra.Command{
-	Use:   "GOMaxProcs",
+// GOMEMLimitCmd represents the GOMEMLimit command
+var GOMEMLimitCmd = &cobra.Command{
+	Use:   "GOMEMLimit",
 	Short: "A brief description of your command",
 	Long: `A longer description that spans multiple lines and likely contains examples
 and usage of using your command. For example:
@@ -25,11 +26,11 @@ Cobra is a CLI library for Go that empowers applications.
 This application is a tool to generate the needed files
 to quickly create a Cobra application.`,
 	Run: func(cmd *cobra.Command, args []string) {
-		goMaxProcs()
+		goMemLimit()
 	},
 }
 
-func goMaxProcs() {
+func goMemLimit() {
 	ctx := context.Background()
 	client, err := setup.GetQueryClient(nil)
 	if err != nil {
@@ -40,47 +41,44 @@ func goMaxProcs() {
 
 	addr := queryService.GetAddress()
 
-	// Get Version
-	if err := CheckQueryServiceVersion(ctx, logger, client, GOMaxProcsVersion); err != nil {
+	if err = CheckQueryServiceVersion(ctx, logger, client, GOMEMLimitVersion); err != nil {
 		os.Exit(1)
 	}
 
-	// query GOMAXPROCS
-	req := client.NewRequest(query.CmdMethod_GOMAXPROCS)
-	req.GoMaxProcsRequest.MaxProcs = *goMaxProcsConfig.Value
+	req := client.NewRequest(query.CmdMethod_GOMEMLIMIT)
+	req.GoMemLimitRequest.MemLimitBytes = *goMemLimitConfig.Bytes
 	deadlineCtx, dcCancel := context.WithTimeout(ctx, *queryService.Timeout)
 	resp, err := client.SendMessage(deadlineCtx, addr, req)
 	if err != nil {
-		logger.Error("failed to request QueryService/GOMAXPROCS", zap.Error(err))
+		logger.Error("failed to request QueryService/GOMEMLIMIT", zap.Error(err))
 		dcCancel()
 		os.Exit(1)
 	}
-	logger.Info("GOMAXPROCS query",
+	logger.Info("GOMEMLIMIT cmd",
 		zap.String("addr", addr),
-		zap.Int32("req", req.GoMaxProcsRequest.MaxProcs),
-		zap.Int32("resp", resp.GoMaxProcsResponse.MaxProcs),
+		zap.Int64("req", req.GoMemLimitRequest.MemLimitBytes),
+		zap.Int64("resp", resp.GoMemLimitResponse.MemLimitBytes),
 	)
 	client.Release(resp)
 	dcCancel()
 }
 
-type GoMaxProcsCmdConfig struct {
-	Value *int32
+type GOMEMLimitConfig struct {
+	Bytes *int64
 }
 
-var goMaxProcsConfig GoMaxProcsCmdConfig
+var goMemLimitConfig GOMEMLimitConfig
 
 func init() {
-	queryServiceCmd.AddCommand(GOMaxProcsCmd)
+	queryServiceCmd.AddCommand(GOMEMLimitCmd)
 
 	// Here you will define your flags and configuration settings.
 
 	// Cobra supports Persistent Flags which will work for this command
 	// and all subcommands, e.g.:
-	// GOMaxProcsCmd.PersistentFlags().String("foo", "", "A help for foo")
+	// GOMEMLimitCmd.PersistentFlags().String("foo", "", "A help for foo")
 
 	// Cobra supports local flags which will only run when this command
 	// is called directly, e.g.:
-	// GOMaxProcsCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
-	goMaxProcsConfig.Value = GOMaxProcsCmd.Flags().Int32P("value", "v", 0, "call mo query-service/GOMaxProcs with spec ")
+	goMemLimitConfig.Bytes = GOMEMLimitCmd.Flags().Int64("bytes", math.MaxInt64, "call GOMEMLIMIT")
 }

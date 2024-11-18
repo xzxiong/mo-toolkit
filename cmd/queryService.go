@@ -4,11 +4,16 @@ Copyright © 2024 NAME HERE <EMAIL ADDRESS>
 package cmd
 
 import (
+	"context"
 	"fmt"
+	"os"
 	"time"
 
 	"github.com/matrixorigin/matrixone/pkg/defines"
+	"github.com/matrixorigin/matrixone/pkg/pb/query"
+	qclient "github.com/matrixorigin/matrixone/pkg/queryservice/client"
 	"github.com/spf13/cobra"
+	"go.uber.org/zap"
 )
 
 // queryServiceCmd represents the queryService command
@@ -26,6 +31,32 @@ to quickly create a Cobra application.`,
 	},
 }
 
+func CheckQueryServiceVersion(ctx context.Context, logger *zap.Logger, client qclient.QueryClient, minVersion int64) error {
+	addr := queryService.GetAddress()
+	// Get Version
+	req := client.NewRequest(query.CmdMethod_GetProtocolVersion)
+	req.GetProtocolVersion = &query.GetProtocolVersionRequest{}
+	deadlineCtx, dcCancel := context.WithTimeout(ctx, *queryService.Timeout)
+	resp, err := client.SendMessage(deadlineCtx, addr, req)
+	if err != nil {
+		logger.Error("failed to request QueryService", zap.Error(err))
+		dcCancel()
+		os.Exit(1)
+	}
+	if resp.GetProtocolVersion.Version < minVersion {
+		logger.Error("target mo query service is too old", zap.String("addr", addr),
+			zap.Int64("version", resp.GetProtocolVersion.Version),
+			zap.Int64("target", minVersion),
+		)
+		os.Exit(1)
+	}
+	logger.Info("GetProtocolVersion",
+		zap.String("addr", addr), zap.Int64("version", resp.GetProtocolVersion.Version))
+	client.Release(resp)
+	dcCancel()
+	return nil
+}
+
 type QueryServiceConfig struct {
 	Port    *int
 	Host    *string
@@ -39,7 +70,10 @@ func (c QueryServiceConfig) GetAddress() string {
 var queryService QueryServiceConfig
 
 const (
-	GOMaxProcsVersion = defines.MORPCMinVersion
+	MinVersion         = defines.MORPCMinVersion
+	GOMaxProcsVersion  = defines.MORPCVersion3
+	GOMEMLimitVersion  = defines.MORPCVersion3
+	GOGCPercentVersion = defines.MORPCVersion4
 )
 
 func init() {
