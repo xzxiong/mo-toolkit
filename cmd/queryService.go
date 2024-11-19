@@ -74,6 +74,8 @@ const (
 	GOMaxProcsVersion  = defines.MORPCVersion3
 	GOMEMLimitVersion  = defines.MORPCVersion3
 	GOGCPercentVersion = defines.MORPCVersion4
+	// MetadataCache Version
+	MetadataCacheVersion = defines.MORPCVersion4
 )
 
 func init() {
