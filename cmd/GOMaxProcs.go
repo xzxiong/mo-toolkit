@@ -17,7 +17,7 @@ import (
 // GOMaxProcsCmd represents the GOMaxProcs command
 var GOMaxProcsCmd = &cobra.Command{
 	Use:   "GOMaxProcs",
-	Short: "A brief description of your command",
+	Short: "helps to call MO QueryService/GOMaxProcs api",
 	Long: `A longer description that spans multiple lines and likely contains examples
 and usage of using your command. For example:
 

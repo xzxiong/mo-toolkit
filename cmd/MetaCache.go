@@ -17,7 +17,7 @@ import (
 // MetaCacheCmd represents the MetaCache command
 var MetaCacheCmd = &cobra.Command{
 	Use:   "MetaCache",
-	Short: "A brief description of your command",
+	Short: "helps to call MO QueryService/MetaCache api",
 	Long: `A longer description that spans multiple lines and likely contains examples
 and usage of using your command. For example:
 

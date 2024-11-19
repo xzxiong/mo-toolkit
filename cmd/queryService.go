@@ -19,7 +19,7 @@ import (
 // queryServiceCmd represents the queryService command
 var queryServiceCmd = &cobra.Command{
 	Use:   "queryService",
-	Short: "A brief description of your command",
+	Short: "toolkit to call mo/query-service",
 	Long: `A longer description that spans multiple lines and likely contains examples
 and usage of using your command. For example:
 

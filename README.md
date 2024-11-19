@@ -11,9 +11,10 @@ Usage:
   mo-toolkit queryService [command]
 
 Available Commands:
-  GOGCPercent A brief description of your command
-  GOMEMLimit  A brief description of your command
-  GOMaxProcs  A brief description of your command
+  GOGCPercent helps to call MO QueryService/GOGCPercent api
+  GOMEMLimit  helps to call MO QueryService/GOMEMLimit api
+  GOMaxProcs  helps to call MO QueryService/GOMaxProcs api
+  MetaCache   helps to call MO QueryService/MetaCache api
 
 Flags:
   -h, --help                             help for queryService

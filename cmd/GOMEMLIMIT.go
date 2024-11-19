@@ -18,7 +18,7 @@ import (
 // GOMEMLimitCmd represents the GOMEMLimit command
 var GOMEMLimitCmd = &cobra.Command{
 	Use:   "GOMEMLimit",
-	Short: "A brief description of your command",
+	Short: "helps to call MO QueryService/GOMEMLimit api",
 	Long: `A longer description that spans multiple lines and likely contains examples
 and usage of using your command. For example:
 

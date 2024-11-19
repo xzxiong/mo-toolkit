@@ -17,7 +17,7 @@ import (
 // GOGCPercentCmd represents the GOGCPercent command
 var GOGCPercentCmd = &cobra.Command{
 	Use:   "GOGCPercent",
-	Short: "A brief description of your command",
+	Short: "helps to call MO QueryService/GOGCPercent api",
 	Long: `A longer description that spans multiple lines and likely contains examples
 and usage of using your command. For example:
 
