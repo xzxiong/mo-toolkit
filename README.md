@@ -1,6 +1,28 @@
 # mo-toolkit
 
 
+## Base cmd
+```
+$ ./build/mo-toolkit -h
+
+Usage:
+  mo-toolkit [command]
+
+Available Commands:
+  completion   Generate the autocompletion script for the specified shell
+  help         Help about any command
+  pullMetrics  helps to pull metrics data from metric-given-server, through http://.../metrics url.
+  queryService toolkit to call mo/query-service
+  version      A brief description of your command
+
+Flags:
+  -h, --help     help for mo-toolkit
+  -t, --toggle   Help message for toggle
+
+Use "mo-toolkit [command] --help" for more information about a command.
+```
+
+
 ## CMD queryService
 
 ```
